@@ -1,68 +1,170 @@
-# 📊 Transformer-Based Web Scraping & Sentiment Analysis Pipeline
+# 🌟 Sentiment Analysis with NLP & BERT
 
-An end-to-end NLP intelligence tool designed to scrape live, real-world consumer reviews from the web and automatically classify customer satisfaction using a state-of-the-art Deep Learning **Transformer (BERT) model**.
-
-This project bypasses traditional static datasets, utilizing dynamic data engineering and deep learning inference to turn messy, unstructured HTML text into structured, actionable business intelligence.
+> Analyze customer reviews from the web in real-time using a pre-trained multilingual BERT model — and get star ratings (1–5) for any piece of text.
 
 ---
 
-## 🚀 Key Highlights & Architecture
+## 📌 Overview
 
-* **Live Web Data Scraping:** Dynamically establishes network connections to pull customer feedback directly from the web using `BeautifulSoup`.
-* **State-of-the-Art NLP:** Leverages a pre-trained, multilingual **BERT-base** architecture fine-tuned specifically for localized review sentiment.
-* **Granular Analytics:** Replaces simple binary (positive/negative) classifications with a highly specific **1-to-5 Star** satisfaction grading scale.
-* **Production-Ready Workflow:** Built with a clean, modular pipeline format emphasizing time-to-value and rapid prototype iteration.
+This project performs **sentiment analysis** on web-scraped customer reviews using **BERT** (Bidirectional Encoder Representations from Transformers). It scrapes reviews from review platforms, processes them through a multilingual NLP model, and returns a sentiment score from **1 (most negative) to 5 (most positive)**.
 
 ---
 
-## 🛠️ Tech Stack & Dependencies
+## 🚀 Features
 
-| Layer | Technology / Library | Purpose |
-| :--- | :--- | :--- |
-| **Deep Learning Engine** | `PyTorch` (torch) | Tensor computation & GPU acceleration |
-| **Model Hub** | `Hugging Face Transformers` | Pre-trained BERT Tokenizer & Sequence Classifier |
-| **Data Scraping** | `BeautifulSoup4` & `requests` | HTML parsing, DOM traversal, and live web requests |
-| **Data Engineering** | `pandas` & `numpy` | DataFrame manipulation and structural formatting |
-| **Text Processing** | `re` (Regular Expressions) | Advanced text pattern matching and cleaning |
+- ✅ Real-time **web scraping** of customer reviews using `BeautifulSoup`
+- ✅ Sentiment scoring powered by **`nlptown/bert-base-multilingual-uncased-sentiment`**
+- ✅ Supports **multilingual** reviews (6 languages: EN, FR, DE, NL, IT, ES)
+- ✅ Outputs structured results in a **Pandas DataFrame**
+- ✅ Works on **GPU** (CUDA 11.8) for fast inference
 
 ---
 
-## 📦 Deep Learning Model Details
+## 🧠 Model
 
-The pipeline initializes the **`nlptown/bert-base-multilingual-uncased-sentiment`** model. This multi-layered neural network reads contextual sub-word tokens and maps them directly onto a discrete scale of customer sentiment:
-
-* **1 Star** ➡️ Strongly Dissatisfied (Extreme Negative)
-* **2 Stars** ➡️ Dissatisfied (Negative)
-* **3 Stars** ➡️ Neutral
-* **4 Stars** ➡️ Satisfied (Positive)
-* **5 Stars** ➡️ Strongly Satisfied (Extreme Positive)
+| Property | Details |
+|---|---|
+| **Model** | `nlptown/bert-base-multilingual-uncased-sentiment` |
+| **Task** | Sequence Classification (Sentiment) |
+| **Output** | Star rating: 1 ⭐ to 5 ⭐⭐⭐⭐⭐ |
+| **Languages** | English, French, German, Dutch, Italian, Spanish |
+| **Source** | 🤗 Hugging Face Transformers |
 
 ---
 
-## 💻 Code Architecture & Execution
+## 🗂️ Project Structure
 
-<details>
-<summary>📂 <b>Step 1: Environment Installation</b> (Click to expand)</summary>
+```
+Sentiment-Analysis---NLP-/
+│
+├── Sentiment Analysis-YELP.ipynb   # Main Jupyter notebook
+└── README.md                        # Project documentation
+```
 
-Ensure your local system has the required deep learning dependencies and web scrapers ready. Run the following commands in your environment:
+---
+
+## ⚙️ Installation
+
+### 1. Clone the repository
 
 ```bash
-# Install PyTorch (CUDA 11.8 Accelerated for faster inference)
-pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cu118](https://download.pytorch.org/whl/cu118)
+git clone https://github.com/trisha2103/Sentiment-Analysis---NLP-.git
+cd Sentiment-Analysis---NLP-
+```
 
-# Install Hugging Face Transformers and Web Parsing Libraries
+### 2. Install dependencies
+
+```bash
+# Install PyTorch with CUDA 11.8 support (GPU)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Install NLP and scraping libraries
 pip install transformers requests beautifulsoup4 pandas numpy
+```
 
-## 📈 Before vs. After Insights
+> 💡 If you don't have a GPU, PyTorch will fall back to CPU automatically.
 
-* **Before (Unstructured Text Chaos):** Messy, unformatted HTML code blocks buried deep within web page DOM elements, completely inaccessible for analytics.
-* **After (Structured Analytical Dashboard):** A clean, highly actionable data view pairing explicit user reviews with concrete, numeric star-satisfaction indicators (1-5 stars). This system enables product, support, and engineering teams to filter feedback and triage critical user friction points instantly.
+---
 
-### The Data Transformation:
-```text
-[Raw HTML DOM] ──> [BeautifulSoup] ──> [BERT Transformer] ──> [Structured Output]
-                                                              ┌──────────────────────┬───────────┐
-                                                              │ Review Text          │ Sentiment │
-                                                              ├──────────────────────┼───────────┤
-                                                              │ "I hated this, bad!" │  1 Star   │
-                                                              └──────────────────────┴───────────┘
+## 📖 How It Works
+
+### Step 1 — Load the BERT Model
+
+```python
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+tokenizer = AutoTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+model = AutoModelForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+```
+
+### Step 2 — Scrape Reviews from the Web
+
+```python
+import requests
+from bs4 import BeautifulSoup
+import re
+
+r = requests.get('https://www.trustpilot.com/review/hotchocolatedesign.com')
+soup = BeautifulSoup(r.text, 'html.parser')
+regex = re.compile('.*typography_body.-*')
+results = soup.find_all('p', {'class': regex})
+reviews = [result.text for result in results]
+```
+
+### Step 3 — Score Each Review
+
+```python
+import torch
+
+def sentiment_score(review):
+    tokens = tokenizer.encode(review, return_tensors='pt')
+    result = model(tokens)
+    return int(torch.argmax(result.logits)) + 1
+```
+
+### Step 4 — Build a DataFrame with Scores
+
+```python
+import pandas as pd
+import numpy as np
+
+df = pd.DataFrame(np.array(reviews), columns=['reviews'])
+df['sentiment'] = df['reviews'].apply(sentiment_score)
+```
+
+---
+
+## 📊 Sample Output
+
+| Review | Sentiment Score |
+|---|---|
+| "Absolutely loved this product!" | ⭐⭐⭐⭐⭐ (5) |
+| "It was okay, nothing special." | ⭐⭐⭐ (3) |
+| "I hated this, absolutely the worst." | ⭐ (1) |
+
+---
+
+## 🛠️ Tech Stack
+
+| Tool | Purpose |
+|---|---|
+| 🤗 `transformers` | BERT model & tokenizer |
+| 🔥 `torch` | Deep learning inference |
+| 🌐 `requests` + `BeautifulSoup` | Web scraping |
+| 🐼 `pandas` + `numpy` | Data handling |
+
+---
+
+## 📋 Requirements
+
+- Python 3.8+
+- CUDA 11.8 (optional, for GPU support)
+- Jupyter Notebook or Google Colab
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open an issue or submit a pull request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 👩‍💻 Author
+
+**Trisha** — [@trisha2103](https://github.com/trisha2103)
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+<p align="center">Made with ❤️ and 🤗 Transformers</p>
